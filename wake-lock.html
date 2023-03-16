@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <title>Wake Lock</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <!-- https://github.com/kognise/water.css -->
+        <link rel="stylesheet" href="water.min.css" />
+        <script>
+            // https://developer.chrome.com/blog/new-in-chrome-79/#wake-lock
+
+            // The wake lock sentinel
+            let wakeLock = null;
+
+            // Function that attempts to request a wake lock
+            const requestWakeLock = async () => {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                        document.getElementById('offContent').hidden = false;
+                        document.getElementById('onContent').hidden = true;
+                    });
+                    document.getElementById('offContent').hidden = true;
+                    document.getElementById('onContent').hidden = false;
+                } catch (err) {
+                    console.error(`${err.name}, ${err.message}`);
+                }
+            };
+
+            // Function that attempts to release the wake lock.
+            const releaseWakeLock = async () => {
+                if (!wakeLock) {
+                    return;
+                }
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                } catch (err) {
+                    console.error(`${err.name}, ${err.message}`);
+                }
+            };
+        </script>
+    </head>
+    <body>
+        <h1>Wake Lock</h1>
+        <div id="offContent">
+            <h2 style="color:red">Off</h2>
+            <button onclick="requestWakeLock()">Activate Lock</button>
+        </div>
+        <div id="onContent" hidden>
+            <h2 style="color:green">On</h2>
+            <button onclick="releaseWakeLock()">Release Lock</button>
+        </div>
+    </body>
+</html>
